@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:entries="@array/curr_mas"
+        android:entryValues="@array/curr_mas"
+        android:key="widget_pref"
+        android:title="Currency"
+        android:defaultValue="USD">
+    </ListPreference>
+    <CheckBoxPreference
+        android:key="notif"
+        android:summary="Enable notifications"
+        android:title="Notifications"
+        android:defaultValue="true">
+    </CheckBoxPreference>
+
+</PreferenceScreen>
