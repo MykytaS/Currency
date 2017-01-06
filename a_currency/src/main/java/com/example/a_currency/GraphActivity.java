@@ -114,7 +114,7 @@ public class GraphActivity extends ActionBarActivity {
         lineChart.setPinchZoom(true);
 
 
-        for (int i=0; i<5; i++) valsComp1.add(new Entry(i, 26.00f));
+        for (int i=0; i<5; i++) valsComp1.add(new Entry(i, 28.00f));
         //valsComp1.add(new Entry(1, 23.70f));
         //valsComp1.add(new Entry(2, 23.70f));
         //valsComp1.add(new Entry(3, 23.70f));
@@ -213,8 +213,8 @@ public class GraphActivity extends ActionBarActivity {
         lineChart.refreshDrawableState();
         lineChart.resetViewPortOffsets();
         lineChart.setVisibleXRange(4,4);
-        lineChart.getAxisLeft().setAxisMaximum(27);
-        lineChart.getAxisLeft().setAxisMinimum(25);
+        lineChart.getAxisLeft().setAxisMaximum(30);
+        lineChart.getAxisLeft().setAxisMinimum(27);
         //lineChart.invalidate();
         //lineChart.invalidate();
         //lineChart.getLineData();
