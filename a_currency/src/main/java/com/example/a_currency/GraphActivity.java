@@ -92,9 +92,6 @@ public class GraphActivity extends ActionBarActivity {
     LineDataSet setComp1;
     LineData data;
 
-    //float miny=0;
-    //float maxy=0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
