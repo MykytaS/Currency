@@ -91,8 +91,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onMapLongClick(LatLng latLng) {
                 Log.d(LOG_TAG, "onMapLongClick: " + latLng.latitude + "," + latLng.longitude);
                 mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(latLng));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                //mMap.addMarker(new MarkerOptions().position(latLng));
+                //mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 CoordByLatLng task = new CoordByLatLng();
                 task.execute(latLng);
             }
@@ -104,8 +104,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Location location = mMap.getMyLocation();
                 LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
                 mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(myLocation));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+                //mMap.addMarker(new MarkerOptions().position(myLocation));
+                //mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
 
                 CoordByLatLng task = new CoordByLatLng();
                 task.execute(myLocation);
