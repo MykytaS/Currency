@@ -1,7 +1,6 @@
 package com.example.a_mapweather;
 
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -63,25 +62,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         init();
-        /*
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        List<Address> addresses;
-        try {
-            addresses = geocoder.getFromLocationName("1600 Amphitheatre Pkwy, Mountain View, CA 94043", 5);
-            Log.d(LOG_TAG, "Зашли");
-            if(addresses.size() > 0) {
-                double latitude= addresses.get(0).getLatitude();
-                double longitude= addresses.get(0).getLongitude();
-                Log.d(LOG_TAG, "onMapReady: " + latitude + "," + longitude);
-                //LatLng customCity = new LatLng(latitude, longitude);
-                //mMap.addMarker(new MarkerOptions().position(customCity).title("1600 Amphitheatre Pkwy, Mountain View, CA 94043"));
-                //mMap.moveCamera(CameraUpdateFactory.newLatLng(customCity));
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -98,9 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(LOG_TAG, etCity.getText().toString());
                 CoordByName task = new CoordByName();
                 task.execute(etCity.getText().toString());
-
                 break;
-
         }
     }
 
@@ -145,14 +123,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         BufferedReader reader = null;
         String resultJson = "";
         LatLng coordinates;
+        String weather_api_key = getResources().getString(R.string.weather_api_key);
 
         @Override
         protected String doInBackground(LatLng... coord) {
-            Log.d(LOG_TAG, "http://api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+
             coordinates=coord[0];
+
             try {
-                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
-                Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid="+weather_api_key);
+                Log.d(LOG_TAG, "http://api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid="+weather_api_key);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -182,20 +162,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d(LOG_TAG, strJson);
             JSONObject dataJsonObj = null;
 
-            Map<String, Object> m;
-
-            NumberFormat nf = NumberFormat.getInstance();
-            nf.setMaximumFractionDigits(2);
-            nf.setMinimumFractionDigits(2);
-
             try {
                 dataJsonObj = new JSONObject(strJson);
-                //JSONArray weather = dataJsonObj.getJSONArray("weather");
                 JSONObject main = dataJsonObj.getJSONObject("main");
                 Log.d(LOG_TAG, "temp "+main.getString("temp"));
-
-
-
                 Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
                 List<Address> addresses = null;
                 String addressText = "";
@@ -226,7 +196,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
 
-
         }
     }
 
@@ -236,13 +205,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         BufferedReader reader = null;
         String resultJson = "";
         String name;
+        String weather_api_key = getResources().getString(R.string.weather_api_key);
         @Override
         protected String doInBackground(String... names) {
-            Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+            Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid="+weather_api_key);
             name=names[0];
             try {
-                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
-                Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid="+weather_api_key);
+                Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid="+weather_api_key);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -272,15 +242,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d(LOG_TAG, strJson);
             JSONObject dataJsonObj = null;
 
-            Map<String, Object> m;
-
-            NumberFormat nf = NumberFormat.getInstance();
-            nf.setMaximumFractionDigits(2);
-            nf.setMinimumFractionDigits(2);
-
             try {
                 dataJsonObj = new JSONObject(strJson);
-                //JSONArray weather = dataJsonObj.getJSONArray("weather");
                 JSONObject main = dataJsonObj.getJSONObject("main");
                 JSONObject coord = dataJsonObj.getJSONObject("coord");
                 Log.d(LOG_TAG, "temp "+main.getString("temp"));
@@ -288,7 +251,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng customCity = new LatLng(Double.parseDouble(coord.getString("lat")),(Double.parseDouble(coord.getString("lon"))));
                 mMap.addMarker(new MarkerOptions().position(customCity).title(name));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(customCity));
-
 
                 tvWeather.setText(main.getString("temp")+"°C, "+main.getString("pressure")+"mm Hg, "+main.getString("humidity")+"%");
 
