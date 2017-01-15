@@ -10,6 +10,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,6 +42,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     final String LOG_TAG = "myLogs";
+    EditText etCity;
+    Button btnSearch;
+    TextView tvWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,23 +54,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        etCity = (EditText) findViewById(R.id.etCity);
+        btnSearch = (Button) findViewById(R.id.btnSearch);
+        tvWeather = (TextView) findViewById(R.id.tvWeather);
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         init();
-
+        /*
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         List<Address> addresses;
         try {
@@ -72,27 +72,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(addresses.size() > 0) {
                 double latitude= addresses.get(0).getLatitude();
                 double longitude= addresses.get(0).getLongitude();
-                Log.d(LOG_TAG, "onMapLongClick: " + latitude + "," + longitude);
-                LatLng customCity = new LatLng(latitude, longitude);
-                mMap.addMarker(new MarkerOptions().position(customCity).title("1600 Amphitheatre Pkwy, Mountain View, CA 94043"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(customCity));
+                Log.d(LOG_TAG, "onMapReady: " + latitude + "," + longitude);
+                //LatLng customCity = new LatLng(latitude, longitude);
+                //mMap.addMarker(new MarkerOptions().position(customCity).title("1600 Amphitheatre Pkwy, Mountain View, CA 94043"));
+                //mMap.moveCamera(CameraUpdateFactory.newLatLng(customCity));
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         mMap.setMyLocationEnabled(true);
 
-        ParseTask task = new ParseTask();
-        task.execute();
-
-        //mMap.clear();
-
     }
+
+    public void onClickBtn(View v) {
+
+        switch (v.getId()) {
+            case R.id.btnSearch:
+                mMap.clear();
+                Log.d(LOG_TAG, etCity.getText().toString());
+                CoordByName task = new CoordByName();
+                task.execute(etCity.getText().toString());
+
+                break;
+
+        }
+    }
+
 
     private void init() {
 
@@ -101,8 +112,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapLongClick(LatLng latLng) {
                 Log.d(LOG_TAG, "onMapLongClick: " + latLng.latitude + "," + latLng.longitude);
+                mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(latLng));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                CoordByLatLng task = new CoordByLatLng();
+                task.execute(latLng);
             }
         });
 
@@ -111,8 +125,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public boolean onMyLocationButtonClick() {
                 Location location = mMap.getMyLocation();
                 LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(myLocation));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+
+                CoordByLatLng task = new CoordByLatLng();
+                task.execute(myLocation);
+
                 return true;
             }
         });
@@ -120,18 +139,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    private class ParseTask extends AsyncTask<Void, Void, String> {
+    private class CoordByLatLng extends AsyncTask<LatLng, Void, String> {
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String resultJson = "";
+        LatLng coordinates;
 
         @Override
-        protected String doInBackground(Void... params) {
-
+        protected String doInBackground(LatLng... coord) {
+            Log.d(LOG_TAG, "http://api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+            coordinates=coord[0];
             try {
-                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q=London,uk&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
-
+                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+                Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?lat="+coord[0].latitude+"&lon="+coord[0].longitude+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -174,6 +195,102 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(LOG_TAG, "temp "+main.getString("temp"));
 
 
+
+                Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+                List<Address> addresses = null;
+                String addressText = "";
+                try {
+                    while (addresses==null){
+                        addresses = geocoder.getFromLocation(coordinates.latitude,coordinates.longitude,1);
+                    }
+
+                    if (addresses != null && addresses.size() > 0) {
+                        Address address = addresses.get(0);
+                        addressText = String.format(
+                                "%s, %s, %s",
+                                address.getMaxAddressLineIndex() > 0 ? address
+                                        .getAddressLine(0) : "", address
+                                        .getLocality(), address.getCountryName());
+                        Log.d(LOG_TAG, "addresses: " + addressText);
+                        LatLng customCity = new LatLng(coordinates.latitude,coordinates.longitude);
+                        mMap.addMarker(new MarkerOptions().position(customCity).title(addressText));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(customCity));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                tvWeather.setText(main.getString("temp")+"°C, "+main.getString("pressure")+"mm Hg, "+main.getString("humidity")+"%");
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
+    private class CoordByName extends AsyncTask<String, Void, String> {
+
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        String resultJson = "";
+        String name;
+        @Override
+        protected String doInBackground(String... names) {
+            Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+            name=names[0];
+            try {
+                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+                Log.d(LOG_TAG, "api.openweathermap.org/data/2.5/weather?q="+names[0]+"&units=metric&appid=cd2162a7f9fe1d7abfb2f437f338f7b8");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line);
+                }
+                Log.d(LOG_TAG, buffer.toString());
+                resultJson = buffer.toString();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return resultJson;
+        }
+
+        @Override
+        protected void onPostExecute(String strJson) {
+            super.onPostExecute(strJson);
+
+            Log.d(LOG_TAG, strJson);
+            JSONObject dataJsonObj = null;
+
+            Map<String, Object> m;
+
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMaximumFractionDigits(2);
+            nf.setMinimumFractionDigits(2);
+
+            try {
+                dataJsonObj = new JSONObject(strJson);
+                //JSONArray weather = dataJsonObj.getJSONArray("weather");
+                JSONObject main = dataJsonObj.getJSONObject("main");
+                JSONObject coord = dataJsonObj.getJSONObject("coord");
+                Log.d(LOG_TAG, "temp "+main.getString("temp"));
+
+                LatLng customCity = new LatLng(Double.parseDouble(coord.getString("lat")),(Double.parseDouble(coord.getString("lon"))));
+                mMap.addMarker(new MarkerOptions().position(customCity).title(name));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(customCity));
+
+
+                tvWeather.setText(main.getString("temp")+"°C, "+main.getString("pressure")+"mm Hg, "+main.getString("humidity")+"%");
 
             } catch (JSONException e) {
                 e.printStackTrace();
