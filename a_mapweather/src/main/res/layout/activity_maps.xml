@@ -33,7 +33,7 @@
             android:layout_gravity="center"
             android:layout_weight="4"
             android:textSize="18dp"
-            android:hint="Enter city there"
+            android:hint="Enter city here"
             >
         </EditText>
 
