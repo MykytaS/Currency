@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">a_MapWeather</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="weather_api_key">cd2162a7f9fe1d7abfb2f437f338f7b8</string>
+</resources>
