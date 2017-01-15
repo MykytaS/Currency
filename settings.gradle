@@ -1,1 +1,1 @@
-include ':app', ':a_currency'
+include ':app', ':a_currency', ':a_mapweather'
